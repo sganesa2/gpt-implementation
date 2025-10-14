@@ -1,29 +1,38 @@
-import torch
+from pathlib import Path
 
 from data.dataset import Dataset, device
 from model.model import ToyGPT
+from data.tokenizer import ToyGPTTokenizer
 
-def run_toygpt(file_name:str, context_size:int, train_size:int, val_size:int, test_size:int):
-    dataset = Dataset(
-        file_name=file_name,
-        context_size=context_size,
-        train_size=train_size,
-        val_size=val_size,
-        test_size=test_size
-    )
-    model = ToyGPT(
-        vocab_size=dataset.vocab_size
-    )
+from checkpointing import load_model
+from train import (
+    TEST_SIZE, 
+    MAX_NEW_TOKENS ,VOCAB_SIZE ,CONTEXT_SIZE, 
+    TRAIN_FRAC, VAL_FRAC, TEST_FRAC
+)
+
+def run_toygpt(dataset:Dataset, model:ToyGPT):
+    checkpointer_dict = load_model()
+    model_state_dict = checkpointer_dict['model_state_dict']
+    model.load_state_dict(model_state_dict)
+    
+    inp,_ = dataset.get_batch('test', TEST_SIZE)
+    out_tensor = model.generate(inp, MAX_NEW_TOKENS)
+    print(dataset.decode(out_tensor)[0])
     # #model.to(device=device)
-    # inps, _ = dataset.get_batch('test', batch_size = 1)
-    # idx = model(inps)
-    # print(dataset.decode(idx)[0])
 
 if __name__=="__main__":
-    run_toygpt(
-        file_name = "dataset.txt",
-        context_size = 8,
-        train_size = 270420,
-        val_size=33802,
-        test_size=33803
+    with open(Path(__file__).parent.joinpath("data/dataset.txt"),'r') as f:
+        text = f.read()
+    tokenizer = ToyGPTTokenizer(VOCAB_SIZE)
+    tokenizer.train(text)
+    dataset = Dataset(
+        file_name='dataset.txt',
+        context_size=CONTEXT_SIZE,
+        tokenizer=tokenizer,
+        train_frac = TRAIN_FRAC,
+        val_frac=VAL_FRAC,
+        test_frac=TEST_FRAC
     )
+    model = ToyGPT(tokenizer.vocab_size)
+    run_toygpt(dataset, model)
