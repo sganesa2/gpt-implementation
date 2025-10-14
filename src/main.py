@@ -8,7 +8,8 @@ from checkpointing import load_model
 from train import (
     TEST_SIZE, 
     MAX_NEW_TOKENS ,VOCAB_SIZE ,CONTEXT_SIZE, 
-    TRAIN_FRAC, VAL_FRAC, TEST_FRAC
+    TRAIN_FRAC, VAL_FRAC, TEST_FRAC,
+    N_EMBED, N_HEADS, N_LAYERS, N_BLOCKS
 )
 
 def run_toygpt(dataset:Dataset, model:ToyGPT):
@@ -34,5 +35,5 @@ if __name__=="__main__":
         val_frac=VAL_FRAC,
         test_frac=TEST_FRAC
     )
-    model = ToyGPT(tokenizer.vocab_size)
+    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_LAYERS, N_BLOCKS)
     run_toygpt(dataset, model)

@@ -16,6 +16,7 @@ VOCAB_SIZE = 948
 CONTEXT_SIZE = 8
 TRAIN_FRAC, VAL_FRAC, TEST_FRAC = 0.8, 0.1, 0.1
 LR, REG_FACTOR = 1e-3, 0.1
+N_EMBED, N_HEADS, N_LAYERS, N_BLOCKS=32,4,2,3
 
 @dataclass
 class ToyGPTTrainer:
@@ -58,7 +59,7 @@ if __name__=="__main__":
         val_frac=VAL_FRAC,
         test_frac=TEST_FRAC
     )
-    model = ToyGPT(tokenizer.vocab_size)
+    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_LAYERS, N_BLOCKS)
     trainer = ToyGPTTrainer(dataset, model)
     trainer.train(EPOCHS, LR, REG_FACTOR)
     loss = trainer.estimate_loss(EVAL_ITERS)
