@@ -95,8 +95,9 @@ class ToyGPTTokenizer:
         return list(chain.from_iterable(token_ids))
     
     def decode(self, token_ids:list[int])->str:
-        tokens = [self.id_to_token[id] if self.id_to_token[id]!='</w>' else " " for id in token_ids]
-        return "".join(tokens)
+        tokens = [self.id_to_token[id] for id in token_ids]
+        out = "".join(tokens).replace("</w>"," ").strip()
+        return out
     
 if __name__=="__main__":
     with open(Path(__file__).parent.joinpath("dataset.txt"),'r') as f:

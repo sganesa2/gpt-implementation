@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 from dataclasses import dataclass, field
 
-from tokenizer import ToyGPTTokenizer
+from data.tokenizer import ToyGPTTokenizer
 
 device = 'cpu'#'mps' if torch.backends.mps.is_available() else 'cpu'
 
@@ -22,6 +22,7 @@ class Dataset:
     trainset:torch.Tensor = field(init=False)
     valset:torch.Tensor = field(init=False)
     testset:torch.Tensor = field(init=False)
+    generator: torch.Generator = field(init=False)
 
     def __post_init__(self):
         data = self.encode_input()
@@ -34,6 +35,8 @@ class Dataset:
         self.valset = data[i:i+j]#.to(device)
         k= f(self.test_frac)
         self.testset = data[i+j:i+j+k]#.to(device)
+
+        self.generator = torch.Generator().manual_seed(6385189022)
     
     def decode(self, idx:torch.Tensor)->list[str]:
         idx = idx.tolist()
@@ -50,7 +53,7 @@ class Dataset:
         else:
             raise ValueError("Invalid split. Choose from 'train', 'val', or 'test'.")
 
-        ix = torch.randint(len(data)-self.context_size, (batch_size,))
+        ix = torch.randint(len(data)-self.context_size, (batch_size,), generator=self.generator)
         x = torch.stack([data[i:i+self.context_size] for i in ix])#.to(device)
         y = torch.stack([data[i+1:i+self.context_size+1] for i in ix])#.to(device)
         return x, y
@@ -59,7 +62,7 @@ class Dataset:
         with open(Path(__file__).parent.joinpath(self.file_name), 'r') as f:
             text = f.read()
         encoded_text = self.tokenizer.encode(text)
-        data = torch.tensor(encoded_text, dtype = torch.float32)
+        data = torch.tensor(encoded_text, dtype = torch.int64)
         return data
 
 if __name__=="__main__":
