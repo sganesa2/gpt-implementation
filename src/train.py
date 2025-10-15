@@ -16,7 +16,7 @@ VOCAB_SIZE = 2000
 CONTEXT_SIZE = 8
 TRAIN_FRAC, VAL_FRAC, TEST_FRAC = 0.8, 0.1, 0.1
 LR, REG_FACTOR = 1e-3, 0.1
-N_EMBED, N_HEADS, N_LAYERS, N_BLOCKS=32,4,1,3
+N_EMBED, N_HEADS, N_BLOCKS, PROJ_FACTOR=32,4,3,4
 
 @dataclass
 class ToyGPTTrainer:
@@ -60,7 +60,7 @@ if __name__=="__main__":
         val_frac=VAL_FRAC,
         test_frac=TEST_FRAC
     )
-    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_LAYERS, N_BLOCKS)
+    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_BLOCKS, PROJ_FACTOR)
     trainer = ToyGPTTrainer(dataset, model)
     trainer.train(EPOCHS, LR, REG_FACTOR)
     loss = trainer.estimate_loss(EVAL_ITERS)

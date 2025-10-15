@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from model.layers import Block
 
 class ToyGPT(nn.Module):
-    def __init__(self, vocab_size:int, context_size:int, n_embed:int, n_heads:int, n_layers:int, n_blocks:int):
+    def __init__(self, vocab_size:int, context_size:int, n_embed:int, n_heads:int, n_blocks:int, proj_factor:int):
         super().__init__()
         self.generator = torch.Generator().manual_seed(6385189022)
         self.vocab_size = vocab_size
@@ -16,7 +16,7 @@ class ToyGPT(nn.Module):
         self.position_embedding_table = nn.Embedding(context_size, n_embed)
         self.blocks = nn.Sequential(
             *[
-                Block(n_heads,context_size,n_embed, n_layers)
+                Block(n_heads,context_size,n_embed, proj_factor)
                 for _ in range(n_blocks)
             ]
         )
