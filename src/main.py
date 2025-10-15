@@ -1,4 +1,5 @@
 from pathlib import Path
+import torch
 
 from data.dataset import Dataset, device
 from model.model import ToyGPT
@@ -18,7 +19,8 @@ def run_toygpt(dataset:Dataset, model:ToyGPT):
     model_state_dict = checkpointer_dict['model_state_dict']
     model.load_state_dict(model_state_dict)
     
-    inp,_ = dataset.get_batch('test', TEST_SIZE)
+    # inp,_ = dataset.get_batch('test', TEST_SIZE)
+    inp = torch.stack([torch.tensor(dataset.tokenizer.encode("I shall haveth thee till end of your life on Mordor.."))])
     out_tensor = model.generate(inp, MAX_NEW_TOKENS)
     print(dataset.decode(out_tensor)[0])
     # #model.to(device=device)

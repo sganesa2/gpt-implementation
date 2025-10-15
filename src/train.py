@@ -31,7 +31,6 @@ class ToyGPTTrainer:
             optim.zero_grad()
             _, loss = self.model.forward(inps, targets, reg_factor)
             loss.backward()
-            print(loss.item())
             optim.step()
 
     @torch.no_grad()
