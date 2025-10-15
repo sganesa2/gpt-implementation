@@ -9,7 +9,8 @@ from train import (
     TEST_SIZE, 
     MAX_NEW_TOKENS ,VOCAB_SIZE ,CONTEXT_SIZE, 
     TRAIN_FRAC, VAL_FRAC, TEST_FRAC,
-    N_EMBED, N_HEADS, N_BLOCKS, PROJ_FACTOR
+    N_EMBED, N_HEADS, N_BLOCKS, PROJ_FACTOR,
+    DROPOUT_PROB
 )
 
 def run_toygpt(dataset:Dataset, model:ToyGPT):
@@ -35,5 +36,5 @@ if __name__=="__main__":
         val_frac=VAL_FRAC,
         test_frac=TEST_FRAC
     )
-    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_BLOCKS, PROJ_FACTOR)
+    model = ToyGPT(VOCAB_SIZE, CONTEXT_SIZE, N_EMBED,N_HEADS, N_BLOCKS, PROJ_FACTOR, DROPOUT_PROB)
     run_toygpt(dataset, model)

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from model.layers import Block
 
 class ToyGPT(nn.Module):
-    def __init__(self, vocab_size:int, context_size:int, n_embed:int, n_heads:int, n_blocks:int, proj_factor:int):
+    def __init__(self, vocab_size:int, context_size:int, n_embed:int, n_heads:int, n_blocks:int, proj_factor:int, dropout:float):
         super().__init__()
         self.generator = torch.Generator().manual_seed(6385189022)
         self.vocab_size = vocab_size
@@ -16,10 +16,11 @@ class ToyGPT(nn.Module):
         self.position_embedding_table = nn.Embedding(context_size, n_embed)
         self.blocks = nn.Sequential(
             *[
-                Block(n_heads,context_size,n_embed, proj_factor)
+                Block(n_heads,context_size,n_embed, proj_factor, dropout)
                 for _ in range(n_blocks)
-            ]
+            ],
         )
+        self.layernorm = nn.LayerNorm(n_embed)
         self.lm_head = nn.Linear(n_embed, vocab_size)
 
     def forward(self, inps:torch.Tensor, targets:torch.Tensor=None, reg_factor:float=0.1)->tuple[torch.Tensor, torch.Tensor]:
@@ -28,7 +29,8 @@ class ToyGPT(nn.Module):
 
         inp_emb = token_emb+pos_emb
         blocks_op = self.blocks(inp_emb)
-        logits = self.lm_head(blocks_op)
+        layer_norm_op = self.layernorm(blocks_op)
+        logits = self.lm_head(layer_norm_op)
 
         if targets is None: return logits, None
         assert reg_factor, "Provide regularization factor"
