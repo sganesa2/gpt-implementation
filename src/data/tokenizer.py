@@ -1,4 +1,5 @@
 import pickle
+import re
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
@@ -21,7 +22,7 @@ class ToyGPTTokenizer:
     def _get_pairs(self, words:dict)->dict:
         pairs = {}
         for w,freq in words.items():
-            subwords = w.split()
+            subwords = w.split(" ")
             for i in range(len(subwords)-1):
                 p = subwords[i], subwords[i+1]
                 pairs[p] = pairs.get(p,0) + freq
@@ -37,7 +38,7 @@ class ToyGPTTokenizer:
     def _tokenize_word(self, word:str)->list[str]:
         word = " ".join([*word,'</w>'])
         while True:
-            subwords = word.split()
+            subwords = word.split(" ")
             if len(subwords)<1: break
             idx = self.vocab_size #we use this to find the min merge index
             pairs = [(subwords[i],subwords[i+1]) for i in range(len(subwords)-1)]
@@ -51,7 +52,7 @@ class ToyGPTTokenizer:
             if not earliest_merge: break
 
             word = word.replace(" ".join(earliest_merge), "".join(earliest_merge))
-        return word.split()
+        return word.split(" ")
 
     def _encoded_token(self, token:str)->list[int]:
         try:
@@ -67,7 +68,8 @@ class ToyGPTTokenizer:
         vocab = set(text+'</w>')
         vocab.add('</w>')
         words = {}
-        for w in text.split():
+        for w in text.split(" "):
+            w = re.sub(' +',"",w)
             mod_word = " ".join([*w,'</w>'])
             words[mod_word] = words.get(mod_word,0)+1
 
@@ -87,22 +89,23 @@ class ToyGPTTokenizer:
             pickle.dump(obj,f)
     
     def encode(self, text:str)->list[int]:
-        words = text.split()
+        words = text.split(" ")
         token_ids = []
         for w in words:
+            w = re.sub(' +',"",w)
             tokens = self._tokenize_word(w)
             [token_ids.append(self._encoded_token(t)) for t in tokens]
         return list(chain.from_iterable(token_ids))
     
     def decode(self, token_ids:list[int])->str:
         tokens = [self.id_to_token[id] for id in token_ids]
-        out = "".join(tokens).replace("</w>"," ").strip()
+        out = "".join(tokens).replace("</w>"," ")
         return out
     
 if __name__=="__main__":
     with open(Path(__file__).parent.joinpath("dataset.txt"),'r') as f:
         text = f.read()
-    tokenizer = ToyGPTTokenizer(948)
+    tokenizer = ToyGPTTokenizer(2000)
     tokenizer.train(text)
     ids = tokenizer.encode("i will attend CMU")
     print(ids)

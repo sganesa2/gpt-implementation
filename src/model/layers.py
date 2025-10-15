@@ -17,7 +17,7 @@ class Head(nn.Module):
 
         q,k,v = self.query(inps), self.key(inps), self.value(inps)
         att_scores = (q @ k.transpose(-2,-1)) * self.head_size**-0.5
-        att_scores = torch.masked_fill(att_scores, mask=self.tril[:T,:T]==0, value=float('inf'))
+        att_scores = torch.masked_fill(att_scores, mask=self.tril[:T,:T]==0, value=-float('inf'))
         att_weights = F.softmax(att_scores, dim=-1)
         out = att_weights@v
         return out

@@ -8,15 +8,15 @@ from data.tokenizer import ToyGPTTokenizer
 
 from checkpointing import save_model
 
-EPOCHS = 2000
+EPOCHS = 3000
 EVAL_ITERS = 300
 TEST_SIZE = 1
-MAX_NEW_TOKENS = 100
-VOCAB_SIZE = 948
+MAX_NEW_TOKENS = 500
+VOCAB_SIZE = 2000
 CONTEXT_SIZE = 8
 TRAIN_FRAC, VAL_FRAC, TEST_FRAC = 0.8, 0.1, 0.1
 LR, REG_FACTOR = 1e-3, 0.1
-N_EMBED, N_HEADS, N_LAYERS, N_BLOCKS=32,4,2,3
+N_EMBED, N_HEADS, N_LAYERS, N_BLOCKS=32,4,1,3
 
 @dataclass
 class ToyGPTTrainer:
@@ -30,6 +30,7 @@ class ToyGPTTrainer:
             optim.zero_grad()
             _, loss = self.model.forward(inps, targets, reg_factor)
             loss.backward()
+            print(loss.item())
             optim.step()
 
     @torch.no_grad()
