@@ -1,5 +1,6 @@
 from pathlib import Path
 import torch
+import time
 
 from data.dataset import Dataset, device
 from model.model import ToyGPT
@@ -16,13 +17,17 @@ from train import (
 
 def run_toygpt(dataset:Dataset, model:ToyGPT):
     checkpointer_dict = load_model()
+    print(checkpointer_dict['loss'])
     model_state_dict = checkpointer_dict['model_state_dict']
     model.load_state_dict(model_state_dict)
     
     # inp,_ = dataset.get_batch('test', TEST_SIZE)
-    inp = torch.stack([torch.tensor(dataset.tokenizer.encode("I shall haveth thee till end of your life on Mordor.."))])
+    inp = torch.stack([torch.tensor(dataset.tokenizer.encode("First Lord:"))])
     out_tensor = model.generate(inp, MAX_NEW_TOKENS)
-    print(dataset.decode(out_tensor)[0])
+    out = dataset.decode(out_tensor)[0]
+    for w in out:
+        print(w, end="", flush=True)
+        time.sleep(0.01)
     # #model.to(device=device)
 
 if __name__=="__main__":

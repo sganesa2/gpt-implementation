@@ -24,8 +24,10 @@ class ToyGPT(nn.Module):
         self.lm_head = nn.Linear(n_embed, vocab_size)
 
     def forward(self, inps:torch.Tensor, targets:torch.Tensor=None, reg_factor:float=0.1)->tuple[torch.Tensor, torch.Tensor]:
+        _,t = inps.shape
+        curr_context_size = min(self.context_size, t)
         token_emb = self.token_embedding_table(inps)
-        pos_emb = self.position_embedding_table(torch.arange(0,self.context_size))
+        pos_emb = self.position_embedding_table(torch.arange(0,curr_context_size))
 
         inp_emb = token_emb+pos_emb
         blocks_op = self.blocks(inp_emb)

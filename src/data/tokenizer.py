@@ -105,7 +105,7 @@ class ToyGPTTokenizer:
 if __name__=="__main__":
     with open(Path(__file__).parent.joinpath("dataset.txt"),'r') as f:
         text = f.read()
-    tokenizer = ToyGPTTokenizer(2000)
+    tokenizer = ToyGPTTokenizer(5000)
     tokenizer.train(text)
     ids = tokenizer.encode("i will attend CMU")
     print(ids)
