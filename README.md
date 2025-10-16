@@ -1,2 +1,2 @@
 # gpt-implementation
-Implementing the original GPT-1 paper...
+mplementing a decoder-only Transfomer for modelling language sequences..
